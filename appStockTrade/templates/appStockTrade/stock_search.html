@@ -1,0 +1,21 @@
+{% extends "appStockTrade/base.html" %}
+
+
+{% block title %}Stock search{% endblock title %}
+
+
+{% block content %}
+
+<!-- search form -->
+<div id="myOverlay" class="overlay">
+{#    <span class="closebtn" onclick="closeSearch()" title="Close Overlay">×</span>#}
+    <div class="overlay-content">
+        <form method="post" action="{% url "appStockTrade-stock_details" %}">
+            {% csrf_token %}
+            {{ form }}
+            <button type="submit"><i class="fa fa-search"></i></button>
+        </form>
+    </div>
+</div>
+
+{% endblock content %}

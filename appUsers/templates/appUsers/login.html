@@ -1,0 +1,87 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css?family=Nunito+Sans:300i,400,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/css/bootstrap.min.css">
+    <title>Login</title>
+    <style>
+
+        body {height: 100vh; }
+
+        .form-control { line-height: 2; }
+
+        .bg-custom { background-color: #000000;}
+
+        .btn-custom { background-color: #000000; color: #fff;}
+
+        .btn-custom:hover { background-color: #e11f3f; color: #fff;}
+
+        label, p { color: #fff;}
+
+        a, a:hover { color: #fff; text-decoration: none;}
+
+        a, a:hover { text-decoration: none; }
+
+        img { display: block; margin-left: auto; margin-right: auto; width: 50%;}
+
+    </style>
+</head>
+
+<body>
+
+    <div class="row m-0 h-100">
+            <div class="col p-0 bg-custom d-flex justify-content-center align-items-center flex-column w-100">
+
+                <!-- logo-->
+                <div class="mb-3">
+                    <img src="{% static 'appStockTrade/images/logo.png' %}"/>
+                </div><br>
+                {% for message in messages %}
+                        <p class="messages">{{ message }}</p><hr>
+                     {% endfor %}
+
+            <form class="w-75" action="{%  url 'appUsers-login_page' %}" method="POST">
+                {% csrf_token %}
+
+                <!-- Email input-->
+                <div class="mb-3">
+                    <label for="exampleFormControlInput1" class="form-label">Email</label>
+                    <input type="email" class="form-control" name="email" id="exampleFormControlInput1" placeholder="Username" required>
+                </div>
+
+                <!-- Password input-->
+                <div class="mb-3">
+                    <label for="exampleFormControlInput2" class="form-label">Password</label>
+                    <input type="password" name="password" class="form-control" id="exampleFormControlInput2" placeholder="Password" required>
+                </div>
+
+                <!-- Keep me logged in checkbox-->
+                <div class="row">
+                    <div class="col-6">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
+                            <label class="form-check-label" for="flexCheckDefault">
+                                Keep me logged in
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Login button-->
+                <button type="submit" class="btn btn-custom btn-lg btn-block mt-3">Login</button>
+
+                <!-- Register link-->
+                 <div class="row">
+                    <div class="col">
+                        <br><a href="{% url 'appUsers-register' %}"><p class="form-check-label" style="text-align: center">Register</p></a>
+                    </div>
+                 </div>
+            </form>
+        </div>
+    </div>
+</body>
+
+</html>

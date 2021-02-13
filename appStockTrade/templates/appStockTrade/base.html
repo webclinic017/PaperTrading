@@ -1,0 +1,149 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- bootstrap external imports -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css">
+    <link href="https://www.jqueryscript.net/css/jquerysctipttop.css" rel="stylesheet" type="text/css">
+
+    <!-- local css -->
+    <link rel="stylesheet" type="text/css" href="{% static 'appStockTrade/css/navbar.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'appStockTrade/css/responsive.css' %}">
+
+    <!-- charts.js external imports has to be in head-->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+
+    <!-- bokeh external css imports -->
+    <link rel="stylesheet" type="text/css" href="http://cdn.pydata.org/bokeh/release/bokeh-2.2.3.min.css"/>
+    <link rel="stylesheet" type="text/css" href="http://cdn.pydata.org/bokeh/release/bokeh-widgets-2.2.3.min.css"/>
+    <link rel="stylesheet" href="https://cdn.bokeh.org/bokeh/release/bokeh-2.3.0.min.css" type="text/css" />
+
+    <!-- title of the page -->
+    <title> {% block title %}{% endblock %}</title>
+</head>
+
+<body>
+
+<!-- top navigation -->
+<nav class="navbar shadow p-2 fixed-top bg-dark">
+    <div class="container-fluid d-flex">
+        <a id="NavMenuBar" class="navbar-brand nabMenuBar" href="#"><i class="fa fa-bars"></i></a>
+        <img src="{% static 'appStockTrade/images/logo.png' %}" style="width: 100px"/>
+         <a class="navbar-brand nabMenuBar" href="{% url 'admin:index' %}"><i class="fa fa-users-cog"></i></a>
+    </div>
+</nav>
+
+<!-- side navigation div   -->
+<div id="SideNavID" class="sideNavClose mt-5 shadow-lg bg-danger">
+    <br><a class="nav-menu-item" href="{% url 'appStockTrade-stock_search' %}"><i class="fa m-2 fa-search"></i><span class="menuText d-none">Search</span></a><br><hr>
+    <a class="nav-menu-item" href="{% url 'appUsers-home' %}"><i class="fa m-2 fa-briefcase"></i><span class="menuText d-none">Portfolio</span></a><br><hr>
+    <a class="nav-menu-item" href="#"><i class="fa m-2 fa-star"></i><span class="menuText d-none">Watchlist</span></a><br><hr>
+    <a class="nav-menu-item" href="{% url 'appUsers-logout' %}"><i class="fa m-2 fa-sign-out-alt"></i><span class="menuText d-none">Sign Out</span></a><br><hr>
+</div>
+
+<!-- empty div that will be displayed instead of SideNavID div when screen enters small resolution  -->
+<div id="ContentOverlayID" class="ContentOverlayClose"></div>
+
+
+
+<!-- div to populate all dynamic views  -->
+<div id="Content" class="Content">
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div>
+</div>
+
+<!-- footer -->
+<footer class="bg-dark text-white text-center text-lg-start">
+  <!-- Grid container -->
+  <div class="container p-4">
+    <!--Grid row-->
+    <div class="row">
+      <!--Grid column-->
+      <div class="col-lg-6 col-md-12 mb-4 mb-md-0">
+        <h5 class="text-uppercase">This is my footer</h5>
+
+        <p>
+          Look at this footer all i need to do now is add some link to APIS that i have used
+        </p>
+      </div>
+      <!--Grid column-->
+
+      <!--Grid column-->
+      <div class="col-lg-3 col-md-6 mb-4 mb-md-0">
+        <h5 class="text-uppercase">Usefull API</h5>
+
+        <ul class="list-unstyled mb-0">
+          <li>
+            <a href="#!" class="text-white">Link 1</a>
+          </li>
+          <li>
+            <a href="#!" class="text-white">Link 2</a>
+          </li>
+          <li>
+            <a href="#!" class="text-white">Link 3</a>
+          </li>
+          <li>
+            <a href="#!" class="text-white">Link 4</a>
+          </li>
+        </ul>
+      </div>
+      <!--Grid column-->
+
+      <!--Grid column-->
+      <div class="col-lg-3 col-md-6 mb-4 mb-md-0">
+        <h5 class="text-uppercase mb-0">Some info</h5>
+
+        <ul class="list-unstyled">
+          <li>
+            <a href="#!" class="text-white">Link 1</a>
+          </li>
+          <li>
+            <a href="#!" class="text-white">Link 2</a>
+          </li>
+          <li>
+            <a href="#!" class="text-white">Link 3</a>
+          </li>
+          <li>
+            <a href="#!" class="text-white">Link 4</a>
+          </li>
+        </ul>
+      </div>
+      <!--Grid column-->
+    </div>
+    <!--Grid row-->
+  </div>
+  <!-- Grid container -->
+
+  <!-- Copyright -->
+  <div class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.1)">
+    © 2021 Copyright:
+    <a class="text-white" href="https://mdbootstrap.com/">Tomas Bunevicius</a>
+  </div>
+  <!-- Copyright -->
+</footer>
+</body>
+
+    <!-- bootstrap external js imports -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/js/bootstrap.min.js"></script>
+
+    <!-- local js imports -->
+    <script src="{% static 'appStockTrade/js/appStockTrade.js' %}"></script>
+
+    <!-- bokeh external js imports -->
+    <script type="text/javascript" src="http://cdn.pydata.org/bokeh/release/bokeh-2.2.3.min.js"></script>
+    <script type="text/javascript" src="http://cdn.pydata.org/bokeh/release/bokeh-widgets-2.2.3.min.js"></script>
+    <script type="text/javascript" src="http://cdn.pydata.org/bokeh/release/bokeh-tables-2.2.3.min.js"></script>
+    <script type="text/javascript" src="http://cdn.pydata.org/bokeh/release/bokeh-api-2.2.3.min.js"></script>
+    {{script | safe}}
+
+</html>
