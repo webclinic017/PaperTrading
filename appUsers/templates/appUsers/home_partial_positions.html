@@ -1,0 +1,40 @@
+<div class="col-12 col-lg-6">
+    <div class="app-card app-card-stats-table h-100 shadow-sm">
+        <div class="app-card-header p-3">
+            <div class="row justify-content-between align-items-center">
+                <div class="col-auto">
+                    <h4 class="app-card-title">Positions</h4>
+                </div>
+            </div>
+        </div>
+        <div class="app-card-body">
+            <div class="table-responsive table-wrapper-scroll-y my-custom-scrollbar">
+                <table class="table table-borderless mb-0">
+                    <thead>
+                    <tr>
+                        <th class="meta">Company</th>
+                        <th class="meta stat-cell">Shares</th>
+                        <th class="meta stat-cell">Price today</th>
+                        <th class="meta stat-cell">Last EOD price</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for position in portfolio %}
+                        <tr>
+                            <td><a href="#">{{ position.symbol }}</a></td>
+                            <td class="stat-cell">{{ position.qty }}</td>
+                            <td class="stat-cell">{{ position.current_price }}</td>
+                            <td class="stat-cell">{{ position.lastday_price }}</td>
+                        </tr>
+                    {% endfor %}
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+         <div class="app-card-footer p-4 mt-auto">
+            <a class="btn app-btn-secondary" href="{% url 'appOrders-view_all_positions' %}">View all</a>
+         </div>
+    </div>
+</div>

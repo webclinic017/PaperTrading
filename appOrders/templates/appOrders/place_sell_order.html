@@ -1,0 +1,262 @@
+{% extends "base.html" %}
+{% block title %}Buy order{% endblock title %}
+{% block content %}
+
+    <div class="app-content pt-3 p-md-3 p-lg-4"><!--//app-content-->
+        <div class="container-xl"><!--//container-fluid-->
+            <div class="row">
+                <div class="col-10"><h1>Place Sell Order</h1></div>
+                <div class="col-2" style="display: flex; align-items: center; display: flex; justify-content: flex-end"><h3><i id="myBtn" class="far fa-question-circle" style="cursor: pointer;"></i></h3></div>
+            </div><hr>
+
+
+
+            <div class="col" style="display: flex; align-items: center;">
+                <a href="{{ request.session.company.website }}"><img src="{{ request.session.company.logo_url }}"
+                                                                     style="max-width: 70px; margin:10px"></a>
+                <h2 class="app-page-title">{{ request.session.company.longName }}</h2>
+            </div>
+
+            <form method="post" action="{% url 'appOrders-submit_buy_order' %}" ng-app="sellOrderForm" ng-controller="sellOrderFormController">
+                {% csrf_token %}
+
+                <div class="row">
+
+                    <div class="col-md-6">
+
+                        <div class="row">
+                            <div class="col">
+                                <div class="mb-3">
+                                    <label for="quantity" class="form-label">Quantity</label>
+                                    <input type="number" min="1" class="form-control" name="quantity" ng-model="quantity" id="quantity" required ng-change="quantityChange()">
+
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col">
+                                <div class="mb-3">
+                                    <label for="type" class="form-label">Type</label>
+                                    <select class="form-control" name="type" ng-model="type" ng-change="typeChange()">
+                                        <option value="Market">Market</option>
+                                        <option value="Limit">Limit</option>
+                                        <option value="Stop">Stop</option>
+                                        <option value="StopLimit">Stop Limit</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="mb-3">
+                                    <label for="timeForce" class="form-label">Time in Force</label>
+                                    <select class="form-control" name="timeForce" ng-model="timeForce"
+                                            ng-change="timForceChange()">
+                                        <option value="Day">Day</option>
+                                        <option value="Gtc">Gtc</option>
+                                        <option value="Opg">Opg</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row" ng-show="limitvar">
+                            <div class="col">
+                                <div class="mb-3">
+                                    <label for="Limit" class="form-label">Limit Price</label>
+                                    <input type="number" step="0.01" min="0" class="form-control" ng-model="limitValue"
+                                           name="limit" id="Limit" ng-required="requiredLimit">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row" ng-show="stopvar">
+                            <div class="col">
+                                <div class="mb-3">
+                                    <label for="Stop" class="form-label">Stop Price</label>
+                                    <input type="number" step="0.01" min="0" class="form-control" ng-model="stopValue"
+                                           name="stop" id="Stop" ng-required="requiredStop">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" ng-model="extendedHours" id="extendedHours"
+                                   ng-change="extendedHoursChange()">
+                            <label class="form-check-label" for="extendedHours">Extended hours</label>
+                        </div><br>
+
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="table-responsive">
+                            <table class="table borderless">
+
+                                <tbody>
+                                <tr>
+                                    <th ng-init="totalSharePrice='{{ request.session.latest_price }}'">Total cost</th>
+                                    <td ng-init="sharePrice='{{ request.session.latest_price }}'">{$ totalSharePrice $}</td>
+                                </tr>
+                                <tr>
+
+                                    <th>Current Bal.</th>
+                                    <td ng-init="balance='{{ request.session.account_cash }}'">{$ balance $}</td>
+                                </tr>
+                                <tr>
+                                    <th>Expected Bal.</th>
+                                    <td ng-init="expectedBalance='{{ request.session.account_cash }}'">{$ expectedBalance $}</td>
+                                </tr>
+                                <tr>
+                                    <th>Current Eqt.</th>
+                                    <td ng-init="equity='{{ request.session.account_equity }}'">{$ equity $}</td>
+                                </tr>
+                                <tr>
+                                    <th>Expected Eqt.</th>
+                                    <td ng-init="expectedEquity='{{ request.session.account_equity }}'">{$ expectedEquity $}</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+
+                    <br><hr>
+                    <div class="row">
+                        <div class="col">
+                            <button type="submit" class="btn btn-outline-dark">Submit Order</button>
+                        </div>
+                    </div>
+                    <br><br>
+
+            </div>
+             </form>
+
+        </div>
+    </div>
+
+    <!-- ///////////////////////////////// modal block //////////////////////////////////-->
+
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <!-- button to close modal -->
+            <span class="close">&times;</span>
+            <br>
+            <h1>Understand Orders</h1>
+            <hr>
+            <h3>Orders Submitted Outside of Eligible Trading Hours</h3>
+            <p>Orders not eligible for extended hours submitted between 4:00pm - 7:00pm ET will be rejected.
+                Orders not eligible for extended hours submitted after 7:00pm ET will be queued and eligible for
+                execution at the time of the next market open.
+                Orders eligible for extended hours submitted outside of 9:00am - 6:00pm ET are handled as
+                described in the section below.</p>
+
+            <h3>Extended Hours Trading</h3>
+            <p>Using API v2, you can submit and fill orders during pre-market and after-hours. Extended hours
+                trading has specific risks due to the less liquidity.
+                Please read through our disclosure for more details.
+
+                Currently, we support the following extended hours:
+                Pre-market: 9:00 - 9:30am
+                After-hours: 4:00 - 6:00pm
+
+                Additionally, please be aware of the following constraints.
+
+                If the order is submitted between 6:00pm and 8:00pm ET on a market day, the order request is
+                returned with error.
+                Alpaca reserves this time window for future expansion of supported hours.
+
+                If the order is submitted after 8:00pm but before 9:00am ET of the following trading day,
+                the order request is queued and will be eligible for execution from the beginning of the next
+                available supported pre-market hours at 9:00am.</p>
+
+            <h3>Market Order</h3>
+            <p>A market order is a request to buy or sell a security at the currently available market price.
+                It provides the most likely method of filling an order. Market orders fill nearly
+                instantaneously.
+
+                As a trade-off, your fill price may slip depending on the available liquidity at each price
+                level as well as any price moves
+                that may occur while your order is being routed to its execution venue.
+                There is also the risk with market orders that they may get filled at unexpected prices due to
+                short-term price spikes.</p>
+
+            <h3>Limit Order</h3>
+            <p>A limit order is an order to buy or sell at a specified price or better.
+                A buy limit order (a limit order to buy) is executed at the specified limit price or lower
+                (i.e., better).
+                Conversely, a sell limit order (a limit order to sell) is executed at the specified limit price
+                or higher (better).
+                Unlike a market order, you have to specify the limit price parameter when submitting your order.
+
+                While a limit order can prevent slippage, it may not be filled for a quite a bit of time, if at
+                all.
+                For a buy limit order, if the market price is within your specified limit price, you can expect
+                the order to be filled.
+                If the market price is equivalent to your limit price, your order may or may not be filled;
+                if the order cannot immediately execute against resting liquidity, then it is deemed
+                non-marketable and will only be
+                filled once a marketable order interacts with it. You could miss a trading opportunity
+                if price moves away from the limit price before your order can be filled.</p>
+
+            <h3>Stop Order</h3>
+            <p>A stop (market) order is an order to buy or sell a security when its price moves past a
+                particular point,
+                ensuring a higher probability of achieving a predetermined entry or exit price. Once the market
+                price crosses the specified stop price,
+                the stop order becomes a market order. Alpaca converts buy stop orders into stop limit orders
+                with a
+                limit price that is 4% higher than a stop price < $50 (or 2.5% higher than a stop price >= $50).
+                Sell stop orders are not converted into stop limit orders.
+
+                A stop order does not guarantee the order will be filled at a certain price after it is
+                converted to a market order.
+                In order to submit a stop order, you will need to specify the stop price parameter in the
+                API.</p>
+
+            <h3>Stop Limit Order</h3>
+            <p>A stop-limit order is a conditional trade over a set time frame that combines the features of a
+                stop order with those of a
+                limit order and is used to mitigate risk. The stop-limit order will be executed at a specified
+                limit price, or better,
+                after a given stop price has been reached. Once the stop price is reached, the stop-limit order
+                becomes
+                a limit order to buy or sell at the limit price or better.
+                In order to submit a stop limit order, you will need to specify both the limit and stop price
+                parameters in the API</p>
+
+
+            <a href="https://alpaca.markets/docs/trading-on-alpaca/orders/"><h5>Click here to find out more</h5>
+            </a>
+        </div>
+    </div>
+
+
+    <!-- ////////////////////////////////// end modal block /////////////////////////////-->
+    <script>
+        // Get the modal
+        var modal = document.getElementById("myModal");
+
+        // Get the button that opens the modal
+        var btn = document.getElementById("myBtn");
+
+        // Get the <span> element that closes the modal
+        var span = document.getElementsByClassName("close")[0];
+
+        // When the user clicks the button, open the modal
+        btn.onclick = function () {
+            modal.style.display = "block";
+        }
+
+        // When the user clicks on <span> (x), close the modal
+        span.onclick = function () {
+            modal.style.display = "none";
+        }
+
+        // When the user clicks anywhere outside of the modal, close it
+        window.onclick = function (event) {
+            if (event.target === modal) {
+                modal.style.display = "none";
+            }
+        }
+    </script>
+
+{% endblock content %}

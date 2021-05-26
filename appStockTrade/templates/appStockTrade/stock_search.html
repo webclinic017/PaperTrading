@@ -1,21 +1,369 @@
-{% extends "appStockTrade/base.html" %}
-
-
+{% extends "base.html" %}
 {% block title %}Stock search{% endblock title %}
-
-
 {% block content %}
 
-<!-- search form -->
-<div id="myOverlay" class="overlay">
-{#    <span class="closebtn" onclick="closeSearch()" title="Close Overlay">×</span>#}
-    <div class="overlay-content">
-        <form method="post" action="{% url "appStockTrade-stock_details" %}">
-            {% csrf_token %}
-            {{ form }}
-            <button type="submit"><i class="fa fa-search"></i></button>
-        </form>
-    </div>
-</div>
+    <div class="app-content pt-3 p-md-3 p-lg-4"><!--//app-content-->
+        <div class="container-xl"><!--//container-fluid-->
+            <div class="row g-4 mb-4"><!-- main row -->
+                <h1>Advanced Search</h1>
+                <h5>{{ message }}</h5><hr>
+
+                <!-- Search form -->
+                <div class="col-12 col-lg-5">
+
+                    <form method="post" action="{% url 'appStockTrade-asset_advanced_search' %}" ng-app="orderForm"
+                          ng-controller="orderFormController">
+                        {% csrf_token %}
+
+                        <div class="row">
+
+                            <div class="col">
+                                <h5>Search By</h5><hr>
+
+                                <div class="row">
+                                    <div class="col mb-3">
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="radioOption" id="radio1" value="name">
+                                            <label class="form-check-label" for="radio1">Company name</label>
+                                        </div>
+                                    </div>
+                                    <div class="col mb-3">
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="radioOption" id="radio2" value="symbol"  checked>
+                                            <label class="form-check-label" for="radio2">Company Symbol</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col mb-3">
+                                        <input type="text" class="form-control" id="name_symbol" name="name_symbol">
+                                    </div>
+                                </div>
+
+                                <br><h5>Exchange</h5><hr>
+
+                                <div class="row">
+                                    <div class="col mb-3 form-check">
+                                        <input class="form-check-input" type="checkbox" id="amex" name="amex">
+                                        <label class="form-check-label" for="amex">AMEX</label>
+                                    </div>
+
+                                    <div class="col mb-3 form-check">
+                                        <input class="form-check-input" type="checkbox" id="arca" name="arca">
+                                        <label class="form-check-label" for="arca">ARCA</label>
+                                    </div>
+
+                                    <div class="col mb-3 form-check">
+                                        <input class="form-check-input" type="checkbox" id="bats"  name="bats">
+                                        <label class="form-check-label" for="bats">BATS</label>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col mb-3 form-check">
+                                        <input class="form-check-input" type="checkbox" id="nyse" name="nyse">
+                                        <label class="form-check-label" for="nyse">NYSE</label>
+                                    </div>
+
+                                    <div class="col mb-3 form-check">
+                                        <input class="form-check-input" type="checkbox" id="nasdaq" name="nasdaq">
+                                        <label class="form-check-label" for="nasdaq">NASDAQ</label>
+                                    </div>
+
+                                    <div class="col mb-3 form-check">
+                                        <input class="form-check-input" type="checkbox" id="nysearca" name="nysearca">
+                                        <label class="form-check-label" for="nysearca">NYSEARCA</label>
+                                    </div>
+                                </div>
+
+                                <!--  -------------------------------------------------------- ------------------------>
+                                <br><h5>Share Price</h5><hr>
+                                <div class="row">
+                                    <div class="col mb-3">
+                                         <div slider id="slider-distance">
+                                            <div>
+                                                <div inverse-left style="width:100%;"></div>
+                                                <div inverse-right style="width:100%;"></div>
+                                                <div range style="left:0%;right:0%;"></div>
+                                                <span thumb style="left:0%;"></span>
+                                                <span thumb style="left:100%;"></span>
+                                                <div sign style="left:0%;">
+                                                    <span id="value">0</span>
+                                                </div>
+                                                <div sign style="left:100%;">
+                                                    <span id="value">1000</span>
+                                                </div>
+                                            </div>
+
+                                            <input name="share_price_min" type="range" value="0" max="9999" min="0" step="1" oninput="
+                                              this.value=Math.min(this.value,this.parentNode.childNodes[5].value-1);
+                                              let value = (this.value/parseInt(this.max))*100
+                                              var children = this.parentNode.childNodes[1].childNodes;
+                                              children[1].style.width=value+'%';
+                                              children[5].style.left=value+'%';
+                                              children[7].style.left=value+'%';children[11].style.left=value+'%';
+                                              children[11].childNodes[1].innerHTML=this.value;"/>
+
+                                            <input name="share_price_max" type="range" value="10000" max="10000" min="0" step="1" oninput="
+                                          this.value=Math.max(this.value,this.parentNode.childNodes[3].value-(-1));
+                                          let value = (this.value/parseInt(this.max))*100
+                                          var children = this.parentNode.childNodes[1].childNodes;
+                                          children[3].style.width=(100-value)+'%';
+                                          children[5].style.right=(100-value)+'%';
+                                          children[9].style.left=value+'%';children[13].style.left=value+'%';
+                                          children[13].childNodes[1].innerHTML=this.value;"/>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                <br><h5>Share Price Deviation</h5><hr>
+                                <div class="row">
+                                    <div class="col mb-3">
+                                        <div slider id="slider-distance">
+                                            <div>
+                                                <div inverse-left style="width:100%;"></div>
+                                                <div inverse-right style="width:100%;"></div>
+                                                <div range style="left:0%;right:0%;"></div>
+                                                <span thumb style="left:0%;"></span>
+                                                <span thumb style="left:100%;"></span>
+                                                <div sign style="left:0%;">
+                                                    <span id="value">0</span>
+                                                </div>
+                                                <div sign style="left:100%;">
+                                                    <span id="value">100</span>
+                                                </div>
+                                            </div>
+                                            <input name="share_deviation_min" type="range" value="0" max="100" min="0" step="1" oninput="
+                                                this.value=Math.min(this.value,this.parentNode.childNodes[5].value-1);
+                                                let value = (this.value/parseInt(this.max))*100
+                                                var children = this.parentNode.childNodes[1].childNodes;
+                                                children[1].style.width=value+'%';
+                                                children[5].style.left=value+'%';
+                                                children[7].style.left=value+'%';children[11].style.left=value+'%';
+                                                children[11].childNodes[1].innerHTML=this.value;"/>
+
+                                             <input name="share_deviation_max" type="range" value="100" max="100" min="-5" step="1" oninput="
+                                                this.value=Math.max(this.value,this.parentNode.childNodes[3].value-(-1));
+                                                let value = (this.value/parseInt(this.max))*100
+                                                var children = this.parentNode.childNodes[1].childNodes;
+                                                children[3].style.width=(100-value)+'%';
+                                                children[5].style.right=(100-value)+'%';
+                                                children[9].style.left=value+'%';children[13].style.left=value+'%';
+                                                children[13].childNodes[1].innerHTML=this.value;"/>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <style>
+
+                                    [slider] {
+                                        width: 100%;
+                                        position: relative;
+                                        height: 5px;
+                                        margin: 45px 0 10px 0;
+                                    }
+
+                                    [slider] > div {
+                                        position: absolute;
+                                        left: 13px;
+                                        right: 15px;
+                                        height: 5px;
+                                    }
+
+                                    [slider] > div > [inverse-left] {
+                                        position: absolute;
+                                        left: 0;
+                                        height: 5px;
+                                        border-radius: 10px;
+                                        background-color: #CCC;
+                                        margin: 0 7px;
+                                    }
+
+                                    [slider] > div > [inverse-right] {
+                                        position: absolute;
+                                        right: 0;
+                                        height: 5px;
+                                        border-radius: 10px;
+                                        background-color: #CCC;
+                                        margin: 0 7px;
+                                    }
+
+                                    {#in between two sliders#}
+                                    [slider] > div > [range] {
+                                        position: absolute;
+                                        left: 0;
+                                        height: 5px;
+                                        border-radius: 14px;
+                                        background-color: gray;
+                                    }
+
+                                    [slider] > div > [thumb] {
+                                        position: absolute;
+                                        top: -7px;
+                                        z-index: 2;
+                                        height: 20px;
+                                        width: 20px;
+                                        text-align: left;
+                                        margin-left: -11px;
+                                        cursor: pointer;
+                                        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
+                                        background-color: #FFF;
+                                        border-radius: 50%;
+                                        outline: none;
+                                    }
+
+                                    [slider] > input[type=range] {
+                                        position: absolute;
+                                        pointer-events: none;
+                                        -webkit-appearance: none;
+                                        z-index: 3;
+                                        height: 14px;
+                                        top: -2px;
+                                        width: 100%;
+                                        opacity: 0;
+                                    }
+
+                                    div[slider] > input[type=range]:focus::-webkit-slider-runnable-track {
+                                        background: transparent;
+                                        border: transparent;
+                                    }
+
+                                    div[slider] > input[type=range]:focus {
+                                        outline: none;
+                                    }
+
+                                    div[slider] > input[type=range]::-webkit-slider-thumb {
+                                        pointer-events: all;
+                                        width: 28px;
+                                        height: 28px;
+                                        border-radius: 0px;
+                                        border: 0 none;
+                                        background: gray;
+                                        -webkit-appearance: none;
+                                    }
+
+                                    div[slider] > input[type=range]::-ms-fill-lower {
+                                        background: transparent;
+                                        border: 0 none;
+                                    }
+
+                                    div[slider] > input[type=range]::-ms-fill-upper {
+                                        background: transparent;
+                                        border: 0 none;
+                                    }
+
+                                    div[slider] > input[type=range]::-ms-tooltip {
+                                        display: none;
+                                    }
+
+                                    [slider] > div > [sign] {
+                                        opacity: 0;
+                                        position: absolute;
+                                        margin-left: -11px;
+                                        top: -39px;
+                                        z-index: 3;
+                                        background-color: gray;
+                                        color: #fff;
+                                        width: 40px;
+                                        height: 28px;
+                                        border-radius: 28px;
+                                        -webkit-border-radius: 28px;
+                                        align-items: center;
+                                        -webkit-justify-content: center;
+                                        justify-content: center;
+                                        text-align: center;
+                                    }
+
+                                    [slider] > div > [sign]:after {
+                                        position: absolute;
+                                        content: '';
+                                        left: 0;
+                                        border-radius: 16px;
+                                        top: 19px;
+                                        border-left: 14px solid transparent;
+                                        border-right: 14px solid transparent;
+                                        border-top-width: 16px;
+                                        border-top-style: solid;
+                                        border-top-color: gray;
+                                    }
+
+                                    [slider] > div > [sign] > span {
+                                        font-size: 12px;
+                                        font-weight: 700;
+                                        line-height: 28px;
+                                    }
+
+                                    [slider]:hover > div > [sign] {
+                                        opacity: 1;
+                                    }
+
+
+                                </style>
+
+                                <!-- ---------------------------------------------------------------------------------->
+
+                                 <style>
+
+                                </style>
+
+                                <script>
+                                </script>
+
+
+
+
+                                <!-- ------------------------------------------------------------------------------- -->
+                            </div>
+
+                            <br>
+                            <hr>
+                            <div class="row">
+                                <div class="col">
+                                    <button type="submit" class="btn btn-outline-dark">Find</button>
+                                </div>
+                            </div>
+                            <br><br>
+
+                        </div>
+                    </form>
+
+                </div><!-- // end search form -->
+
+                <!-- Table with search results -->
+                <div class="col-12 col-lg-7">
+                    <div class="container mb-3 mt-3">
+                        <table class="table table-hover mydatatable" style="width: 100%">
+                            <thead>
+                            <tr>
+                                <th>Logo</th>
+                                <th>Name</th>
+                                <th>Symbol</th>
+                                <th>Price</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for result in search_results %}
+                                <tr class='clickRow'
+                                    onclick="window.location='{% url 'appStockTrade-stock_details' %}?symbol={{ result.asset.symbol }}';">
+                                    <td><img src="{{ result.logo_url }}" style="max-width: 70px; margin:10px"></td>
+                                    <td>{{ result.asset.symbol }}</td>
+                                    <td>{{ result.asset.name }}</td>
+                                    <td>{{ result.last_price }}</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div><!-- // end search results -->
+
+            </div><!--//main row-->
+        </div><!--//container-fluid-->
+    </div><!--//app-content-->
+
+
 
 {% endblock content %}
+
+

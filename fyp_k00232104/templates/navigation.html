@@ -1,0 +1,44 @@
+{% load static %}
+
+<!-- top navigation -->
+<nav class="navbar shadow p-2 fixed-top bg-dark">
+    <div class="container-fluid d-flex">
+        <a id="NavMenuBar" class="navbar-brand nabMenuBar" href="#"><i class="fa fa-bars"></i></a>
+        <img src="{% static 'base/images/logo.png' %}" style="width: 100px" alt="missing logo"/>
+         <a class="navbar-brand nabMenuBar" href="{% url 'admin:index' %}"><i class="fa fa-users-cog"></i></a>
+    </div>
+</nav>
+
+<!-- side navigation div   -->
+<div id="SideNavID" class="sideNavClose mt-5 shadow-lg bg-danger">
+    <br><a id="searchNav" class="nav-menu-item" onclick="openSearch()" ><i class="fa m-2 fa-search"></i><span class="menuText d-none">Search</span></a><br><hr>
+    <a class="nav-menu-item" href="{% url 'appUsers-home' %}"><i class="fa m-2 fa-briefcase"></i><span class="menuText d-none">Portfolio</span></a><br><hr>
+    <a class="nav-menu-item" href="#"><i class="fa m-2 fa-star"></i><span class="menuText d-none">Watchlist</span></a><br><hr>
+    <a class="nav-menu-item" href="{% url 'appUsers-logout' %}"><i class="fa m-2 fa-sign-out-alt"></i><span class="menuText d-none">Sign Out</span></a><br><hr>
+</div>
+
+<!-- empty div that will be displayed instead of SideNavID div when screen enters small resolution  -->
+<div id="ContentOverlayID" class="ContentOverlayClose"></div>
+
+
+<!-- quick search form -->
+<div id="myOverlay" class="overlay"><br><br>
+    <div class="overlay-content">
+        <span class="closebtn" onclick="closeSearch()" title="Close Overlay">×</span>
+        <form method="post" action="{% url "appStockTrade-asset_quick_search" %}">
+            {% csrf_token %}
+            <input type="text"
+                   placeholder="Symbol... "
+                   pattern="[A-Z]{1,6}"
+                   oninput="this.value = this.value.toUpperCase()"
+                   oninvalid="this.setCustomValidity('Only letters allowed, no more than six characters.')"
+                   onchange="this.setCustomValidity('')"
+                   name="company"
+                   required>
+
+            <button type="submit" ><i class="fa fa-search"></i></button>
+            <a href="{% url "appStockTrade-asset_quick_search" %}" class="dsearch"><h5>Detailed search</h5></a>
+        </form>
+    </div>
+</div>
+

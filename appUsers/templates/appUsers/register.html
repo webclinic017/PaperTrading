@@ -39,23 +39,20 @@
             <div class="col p-0 bg-custom d-flex justify-content-center align-items-center flex-column w-100">
 
                 <!-- logo-->
-                <div class="mb-3"><img src="{% static 'appStockTrade/images/logo.png' %}"/></div>
+                <div class="mb-3"><img src="{% static 'base/images/logo.png' %}"/></div>
 
 
             <form class="w-75" action="{%  url 'appUsers-register' %}" method="POST">
                 {% csrf_token %}
                 <div class="messages">{{ form.errors }}</div>
+
                 <!-- Email input-->
                 <label for="exampleFormControlInput1" class="form-label">Email</label>
-                <div class="mb-3">
-                    {{ form.email }}
-                </div>
+                <div class="mb-3">{{ form.email }}</div>
 
                 <!-- Username input-->
                 <label for="exampleFormControlInput1" class="form-label">Username</label>
-                <div class="mb-3">
-                    {{ form.username }}
-                </div>
+                <div class="mb-3">{{ form.username }}</div>
 
 
                 <!-- Password input-->

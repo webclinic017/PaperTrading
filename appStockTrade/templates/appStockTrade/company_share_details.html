@@ -1,0 +1,117 @@
+<div class="row">
+    <div class="app-card app-card-chart h-100 shadow-sm">
+
+
+        <div class="app-card-header p-3">
+            <div class="row justify-content-between align-items-center">
+
+
+
+                <div class="col-auto">
+                    <div class="col" style="display: flex; align-items: center;">
+                        <a href="{{ request.session.company.website }}"><img src="{{ request.session.company.logo_url }}" style="max-width: 70px; margin:10px"></a>
+                        <h1 class="app-page-title">{{ request.session.company.longName }}</h1>
+                        {% if close_change > 0%}
+                            <h1 style="color: darkgreen">&nbsp;&nbsp;{{ latest_quote.c }}</h1>
+                            <h3 style="color: darkgreen">(+{{ close_change }})</h3>
+                        {% else %}
+                            <h1 style="color: #e11f3f">&nbsp;&nbsp;{{ latest_quote.c }}</h1>
+                            <h3 style="color: #e11f3f">({{ close_change }})</h3>
+                        {% endif %}
+
+                    </div>
+                </div><!--//col-->
+
+                <div class="col-auto">
+                    <div class="card-header-action">
+                        <button type="button" class="btn btn-outline-dark">Follow</button>
+                    </div><!--//card-header-actions-->
+                </div><!--//col-->
+
+            </div><!--//row-->
+        </div><!--//app-card-header-->
+
+        <div class="app-card-body p-3 p-lg-4">
+            <div class="chart-container">
+                <div class="col">{{ div | safe }}</div>
+                <br>
+                <div class="row">
+
+                    <div class="col">
+                        <br><h5>Latest</h5>
+                        <div class="table-responsive">
+                            <table class="table borderless">
+
+                                <tbody>
+                                    <tr><th scope="row">Time</th><td>{{ latest_quote.t }}</td></tr>
+                                    <tr><th scope="row">Open</th><td>{{ latest_quote.o }}</td></tr>
+                                    <tr><th scope="row">High</th><td>{{ latest_quote.h }}</td></tr>
+                                    <tr><th scope="row">Low</th><td>{{ latest_quote.l }}</td></tr>
+                                    <tr><th scope="row">Close</th><td>{{ latest_quote.c }}</td></tr>
+                                </tbody>
+                            </table>
+                            <a href="{% url 'appOrders-place_buy_order' %}"><button type="button" id="myBtn" class="btn btn-outline-dark">Buy</button></a>
+                        </div>
+                    </div>
+
+                    <div class="col">
+                        <br><h5>Last EOD</h5>
+                        <div class="table-responsive">
+                            <table class="table borderless">
+
+                                <tbody>
+                                    <tr><th scope="row">Time </th><td>{{ last_eod.t }}</td></tr>
+                                    <tr><th scope="row">Open </th><td>{{ last_eod.o }}</td></tr>
+                                    <tr><th scope="row">High </th><td>{{ last_eod.h }}</td></tr>
+                                    <tr><th scope="row">Low  </th><td>{{ last_eod.l }}</td></tr>
+                                    <tr><th scope="row">Close</th><td>{{ last_eod.c }}</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    {% if sell %}
+                        <br><div class="col-lg">
+                        <br><h5>Portfolio</h5>
+                        <div class="table-responsive">
+                            <table class="table borderless">
+
+                                <tbody>
+                                <tr>
+                                    <th scope="row">Quantity</th>
+                                    <td>{{ position.qty }}</td>
+                                </tr>
+                                 <tr>
+                                    <th scope="row">Share Price</th>
+                                    <td>{{ share_price }}</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Cost Basis</th>
+                                    <td>{{ position.cost_basis }}</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Market Value</th>
+                                    <td>{{ position.market_value }}</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Capital Gain</th>
+                                    {%if position.unrealized_pl < 0 %}
+                                        <td style="color:darkgreen"> &#8593;&nbsp;{{ position.unrealized_pl }}</td>
+                                    {% else %}
+                                        <td style="color: #e11f3f ">  &#8595;&nbsp;{{ position.unrealized_pl }}</td>
+                                    {% endif %}
+                                </tr>
+                                </tbody>
+                            </table>
+                            <a href="{% url 'appOrders-place_sell_order' %}"><button type="button" class="btn btn-outline-dark">Sell</button></a>
+                        </div>
+                    </div>
+                    {%  endif %}
+
+                </div>
+
+
+            </div>
+        </div><!--//app-card-body-->
+    </div><!--//app-card-->
+</div><!-- end row-->

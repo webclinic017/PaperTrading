@@ -1,0 +1,43 @@
+<div class="col-12 col-lg-6">
+    <div class="app-card app-card-progress-list h-100 shadow-sm">
+        <div class="app-card-header p-3">
+            <div class="row justify-content-between align-items-center">
+                <div class="col-auto">
+                    <h4 class="app-card-title">Orders</h4>
+                </div>
+
+            </div>
+        </div>
+        <div class="app-card-body">
+            <div class="table-responsive table-wrapper-scroll-y my-custom-scrollbar">
+                <table class="table table-borderless mb-0">
+                    <thead>
+                    <tr>
+                        <th class="meta">Company</th>
+                        <th class="meta stat-cell">Qty</th>
+                        <th class="meta stat-cell">Side</th>
+                        <th class="meta stat-cell">Placed at</th>
+                        <th class="meta stat-cell">Status</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for order in orders %}
+                        <tr>
+                            <td><a href="#">{{ order.symbol }}</a></td>
+                            <td class="stat-cell">{{ order.qty }}</td>
+                            <td class="stat-cell">{{ order.side }}</td>
+                            <td class="stat-cell">{{ order.submitted_at }}</td>
+                            <td class="stat-cell">{{ order.status }}</td>
+                        </tr>
+                    {% endfor %}
+
+                    </tbody>
+
+                </table>
+            </div>
+        </div>
+        <div class="app-card-footer p-4 mt-auto">
+            <a class="btn app-btn-secondary" href="{% url 'appOrders-view_all_orders' %}">View all</a>
+        </div>
+    </div>
+</div>

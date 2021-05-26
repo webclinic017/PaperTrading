@@ -25,6 +25,15 @@
     <orderEntry type="library" name="bokeh-tables-2.2.3" level="application" />
     <orderEntry type="library" name="bokeh-api-2.2.3" level="application" />
     <orderEntry type="library" name="bokeh-0.13.0" level="application" />
+    <orderEntry type="library" name="angular" level="application" />
+    <orderEntry type="library" name="dataTables.bootstrap4" level="application" />
+    <orderEntry type="library" name="jquery.dataTables" level="application" />
+    <orderEntry type="library" name="jquery-3.2.1.slim" level="application" />
+    <orderEntry type="library" name="jquery-3.3.1" level="application" />
+    <orderEntry type="library" name="jquery-ui" level="application" />
+    <orderEntry type="library" name="jquery-1.12.4" level="application" />
+    <orderEntry type="library" name="jquery" level="application" />
+    <orderEntry type="library" name="rzslider" level="application" />
   </component>
   <component name="TemplatesService">
     <option name="TEMPLATE_CONFIGURATION" value="Django" />

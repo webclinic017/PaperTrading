@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://fonts.googleapis.com/css?family=Nunito+Sans:300i,400,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/css/bootstrap.min.css">
+
     <title>Login</title>
     <style>
 
@@ -31,13 +32,12 @@
 </head>
 
 <body>
-
     <div class="row m-0 h-100">
             <div class="col p-0 bg-custom d-flex justify-content-center align-items-center flex-column w-100">
 
                 <!-- logo-->
                 <div class="mb-3">
-                    <img src="{% static 'appStockTrade/images/logo.png' %}"/>
+                    <img src="{% static 'base/images/logo.png' %}"/>
                 </div><br>
                 {% for message in messages %}
                         <p class="messages">{{ message }}</p><hr>

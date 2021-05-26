@@ -1,186 +1,217 @@
 from django.shortcuts import render
-import alpaca_trade_api as tradeapi
-import pandas as pd
-from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render
-from bokeh.plotting import figure, output_file, show
-from bokeh.embed import components
-from bokeh.layouts import column
-from bokeh.models import ColumnDataSource, RangeTool
-from bokeh.plotting import figure
-from math import pi
-import datetime
-import requests
 import yfinance as yf
-from newsapi import NewsApiClient
-from .forms import SearchForm
+from .forms import SearchForm, PlaceOrder
+from Utils.api_util import *
+from Utils.graph_util import build_candlestick_graph
+from Utils.articles_util import *
 
 
 # search page
-def stock_search(request):
-    form = SearchForm()
-    return render(request, 'appStockTrade/stock_search.html', {'form': form})
+def asset_quick_search(request):
+
+    context = {}
+
+    if request.method == 'POST':
+        message = ''
+        company = request.POST.get("company", "")
+        api = get_api(request)
+        try:
+            asset = api.get_asset(company)
+            if asset and asset.tradable:
+                return stock_details(request)
+            if asset and asset.tradable == 'false':
+                message = "We dont trade " + company + " at the moment!"
+        except:
+            message = company + " could not be found!"
+
+        # get all available assets - this is a very big dictionary
+        all_active_assets = api.list_assets(status='active')
+
+        # filter it to match search this should narrow down dictionary to only 1-20
+        active_assets = [a for a in all_active_assets if a.symbol in company or company in a.symbol]
+        search_results = []
+        for a in active_assets:
+            this_asset = {
+                'last_price': get_latest_share_price(api, a.symbol)[0].c,
+                'logo_url':  yf.Ticker(a.symbol).info['logo_url'],
+                'asset': a
+            }
+            search_results.append(this_asset)
+
+        context = {'message': message, 'search_results': search_results}
+
+    return render(request, 'appStockTrade/stock_search.html', context)
+
+
+# advanced search page
+def asset_advanced_search(request):
+    message = ''
+    if request.method == 'POST':
+
+
+        print("///////////////////////////////////////////////////////////////////////////////")
+        option = request.POST.get("radioOption", "")
+        print("option - " + option)
+
+        name_symbol = request.POST.get("name_symbol", "none")
+        print("name_symbol - " + name_symbol)
+
+        amex = request.POST.get("amex", "off")
+        print("amex - " + amex)
+
+        arca = request.POST.get("arca", "off")
+        print("arca - " + arca)
+
+        bats = request.POST.get("bats", "off")
+        print("bats - " + bats)
+
+        nyse = request.POST.get("nyse", "off")
+        print("nyse - " + nyse)
+
+        nasdaq = request.POST.get("nasdaq", "off")
+        print("nasdaq - " + nasdaq)
+
+        nysearca = request.POST.get("nysearca", "off")
+        print("nysearca - " + nysearca)
+
+        share_price_min = float(request.POST.get("share_price_min", ""))
+        print("share_price_min - " + str(share_price_min))
+
+        share_price_max = float(request.POST.get("share_price_max", ""))
+        print("share_price_max - " + str(share_price_max))
+
+        share_deviation_min = float(request.POST.get("share_deviation_min", ""))
+        print("share_deviation_min - " + str(share_deviation_min))
+
+        share_deviation_max = float(request.POST.get("share_deviation_max", ""))
+        print("share_deviation_max - " + str(share_deviation_max))
+
+        print("///////////////////////////////////////////////////////////////////////////////")
+
+        results = []
+        api = get_api(request)
+        all_active_assets = api.list_assets(status='active')
+        print(" all active assets found = " + str(len(all_active_assets)))
+
+        nasdaq_assets = [a for a in all_active_assets if a.exchange == 'NASDAQ']
+        print(" nasdaq active assets found = " + str(len(nasdaq_assets)))
+
+        amex_assets = [a for a in all_active_assets if a.exchange == 'AMEX']
+        print(" amex active assets found = " + str(len(amex_assets)))
+
+        if name_symbol != "":
+            print("////////////////// checking by name or symbol //////////////////")
+            count = 0
+            for asset in all_active_assets:
+                if option == 'symbol':
+                    print("////////////////// cheking by sybol //////////////////")
+                    if name_symbol in asset.symbol:
+                        results.append(asset)
+                else:
+                    print("////////////////// cheking by name //////////////////")
+                    try:
+                        if name_symbol in yf.Ticker(asset.symbol).info['longName']:
+                            results.append(asset)
+                    except:
+                        pass
+
+                print(count)
+                count = count + 1
+
+        else:
+            results = all_active_assets
+
+        if share_price_min != 0 or share_price_max != 10000:
+            print("/////////////////// checking current price ///////////////////////")
+            count = 0
+            for asset in all_active_assets:
+                price = get_latest_share_price(api, asset.symbol)
+                if share_price_min < price < share_price_max:
+                    results.append(asset)
+                count = count +1
+                print(count)
+
+        search_results = []
+        print("/////////////////// adding to search results ///////////////////////")
+        print("number of results so far = " + str(len(results)))
+        message = ""
+        if len(results) > 20:
+            message = "Your search produced " + str(len(results)) + ", please narrow it down."
+        else:
+            for a in results:
+                this_asset = {
+                    'last_price': get_latest_share_price(api, a.symbol),
+                    'logo_url': yf.Ticker(a.symbol).info['logo_url'],
+                    'asset': a
+                }
+                search_results.append(this_asset)
+
+        context = {'search_results': search_results, 'message':message}
+        return render(request, 'appStockTrade/stock_search.html', context)
 
 
 # company details
 def stock_details(request):
 
-    # Check if form was used
+    symbol = ''
+
+    # used link from advanced search results
+    if request.method == 'GET':
+        symbol = request.GET.get('symbol', 'None')
+
+    # Check if quick search form was used
     if request.method == 'POST':
         form = SearchForm(request.POST)
         if form.is_valid():
-            company = form.cleaned_data['company']
 
-            # Get stock price data
-            source = get_stock_price_data(company, 'day', 356)
+            # user input in search form ticket at the moment
+            symbol = form.cleaned_data['company']
 
-            # Design graph
-            script, div = build_candlestick_graph(source)
+    # Create form
+    place_order_form = PlaceOrder
 
-            # Get company details
-            company = yf.Ticker(company)
-            print(company.actions)
-            print(company.financials)
-            print(company.info)
+    # referencing REST object
+    api = get_api(request)
 
-            # Get news
-            news_data = get_news_articles(company.info['longName'], 3)
+    # get latest share quote
+    latest_quote, last_eod, close_change = get_latest_share_price(api, symbol)
+    request.session["latest_price"] = latest_quote.c
 
-            # Put data into context
-            context = {
-                'script': script,
-                'div': div,
-                'company_name': company.info['longName'],
-                'company_logo': company.info['logo_url'],
-                'company_website': company.info['website'],
-                'company_summary': company.info['longBusinessSummary'],
-                'articles': news_data['articles']
-            }
+    # Get stock price data for the last year
+    source = get_stock_price_data(api, symbol, 'day', 356)
 
-            return render(request, 'appStockTrade/stock_details.html', context)
+    # Design graph
+    script, div = build_candlestick_graph(source)
 
+    # Get company details from yahoo
+    company = yf.Ticker(symbol)
 
-# ========================================= util functions ==============================================
+    # Find out is there any open positions
+    sell, position, share_price = find_open_position(api, symbol)
 
+    # put some variables into session
+    request.session["company"] = company.info
+    # fav_color = request.session['fav_color']
 
-def get_stock_price_data(company, interval, number_records):
-    api_key = 'PKX2PDXI1748FBUAHO84'
-    api_secret = 'x4208uwYAhHRpAaeoPDZBALP0UPRZANFOL3C7jfN'
-    base_url = 'https://paper-api.alpaca.markets'
-    api = tradeapi.REST(api_key, api_secret, base_url, api_version='v2')
-    bar_set = api.get_barset(company, interval, limit=number_records)
+    # Get news
+    news_data = get_news_articles(company.info['longName'], 3)
 
-    # Convert result to data frame
-    source = bar_set[company].df
+    # Put data into context
+    context = {
+        'close_change': close_change,
+        'latest_quote' : latest_quote,
+        'last_eod' : last_eod,
+        'share_price': share_price,
+        'position': position,
+        'sell': sell,
+        'place_order_form': place_order_form,
+        'script': script,
+        'div': div,
+        'company_name': company.info['longName'],
+        'company_logo': company.info['logo_url'],
+        'company_website': company.info['website'],
+        'company_summary': company.info['longBusinessSummary'],
+        'articles': news_data['articles']
+    }
 
-    # Reset index to numbers instead of dates
-    source = source.reset_index()
-
-    # rename column names
-    source = source.rename(index=str, columns={"index": "date", "1. open": "open", "2. high": "high",
-                                               "3. low": "low", "4. close": "close"})
-
-    # Change to datetime
-    source['time'] = pd.to_datetime(source['time'])
-
-    # Sort data according to date
-    source = source.sort_values(by=['time'])
-
-    # Change the datatype to float
-    source.open = source.open.astype(float)
-    source.close = source.close.astype(float)
-    source.high = source.high.astype(float)
-    source.low = source.low.astype(float)
-
-    # Checks
-    source.head()
-    # source.info()
-    return source
-
-
-def build_range_tool_graph(stock_data):
-    source = ColumnDataSource(data=dict(date=stock_data.time, close=stock_data.close))
-
-    plot = figure(
-        plot_height=300,
-        plot_width=950,
-        sizing_mode='scale_width',
-        tools="xpan",
-        toolbar_location=None,
-        x_axis_type="datetime",
-        x_axis_location="above",
-        background_fill_color="white",                                                                    # color here
-        x_range=(stock_data.time[280], stock_data.time[355])
-    )
-    plot.sizing_mode = "scale_both"
-    plot.line('date', 'close', source=source)
-    plot.yaxis.axis_label = 'Price'
-    select = figure(
-        # title="Drag the middle and edges of the selection box to change the range above",
-        plot_height=100,
-        # plot_width=1000,
-        sizing_mode='scale_width',
-        y_range=plot.y_range,
-        x_axis_type="datetime",
-        y_axis_type=None,
-        tools="",
-        toolbar_location=None,
-        background_fill_color="white"                                                                     # color here
-    )
-    select.sizing_mode = "scale_both"
-    range_tool = RangeTool(x_range=plot.x_range)
-    range_tool.overlay.fill_color = "white"                                                             # color here
-    range_tool.overlay.fill_alpha = 0.1  # transparent
-
-    select.line('date', 'close', source=source)
-    select.ygrid.grid_line_color = None
-    select.add_tools(range_tool)
-    select.toolbar.active_multi = range_tool
-    return components(column(plot, select))
-
-
-def build_candlestick_graph(source):
-    # These lines are there to color. The red and green bars for down and up days
-    increasing = source.close > source.open
-    decreasing = source.open > source.close
-    w = 12 * 60 * 60 * 1000
-
-    # TOOLS = "pan, wheel_zoom, box_zoom, reset, save"
-    title = 'EUR to USD chart'
-
-    p = figure(x_axis_type="datetime", plot_height=200, title=title)
-    p.sizing_mode = "scale_both"
-    p.xaxis.major_label_orientation = pi / 4
-    p.grid.grid_line_alpha = 0.3
-    p.segment(source.time, source.high, source.time, source.low, color="black")
-    p.vbar(source.time[increasing], w, source.open[increasing], source.close[increasing],
-           fill_color="#D5E1DD", line_color="black")
-    p.vbar(source.time[decreasing], w, source.open[decreasing], source.close[decreasing], fill_color="#F2583E",
-           line_color="black")
-    return components(p)
-
-
-def get_news_articles(company, num_articles):
-    news_api = NewsApiClient(api_key='fb27b137a81b43278b795408774dabad')
-    data = news_api.get_everything(q=company, language='en', page_size=num_articles)
-    for d in data['articles']:
-        d['publishedAt'] = article_age(d['publishedAt'])
-    return data
-
-
-def article_age(start_date):
-    start_date = start_date.split('T')[0]
-    start_date = datetime.datetime.strptime(start_date, '%Y-%m-%d')
-    today = datetime.datetime.now()
-    result = (today - start_date).days
-
-    if result == 0:
-        return "Today"
-    elif result == 1:
-        return "Yesterday"
-    elif 1 < result < 8:
-        return str(result) + " days ago"
-    elif 8 < result < 32:
-        return str(int(result / 7)) + " weeks ago"
-    else:
-        return str(int(result / 30)) + " months ago"
+    return render(request, 'appStockTrade/stock_details.html', context)

@@ -22,7 +22,7 @@ SECRET_KEY = 'h&$6$)@4gdmcwjvw78%#b4#k&or$t1#*t)+6o*tcdyckcg*o7c'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['192.168.1.9', '127.0.0.1', 'localhost']
 
 # This tells django what default model to use for user creation
 AUTH_USER_MODEL = "appUsers.CustomUser"
@@ -32,12 +32,15 @@ AUTH_USER_MODEL = "appUsers.CustomUser"
 INSTALLED_APPS = [
     'appUsers.apps.AppusersConfig',
     'appStockTrade.apps.AppstocktradeConfig',
+    'appOrders.apps.AppordersConfig',
+    'appWatchlist.apps.AppwatchlistConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'crispy_forms',
 ]
 
 MIDDLEWARE = [
@@ -55,9 +58,7 @@ ROOT_URLCONF = 'fyp_k00232104.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')]
-        # 'DIRS': [os.path.join(BASE_DIR, 'gui/build')]
-        ,
+        'DIRS': [os.path.join(BASE_DIR, 'fyp_k00232104/templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -71,7 +72,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'fyp_k00232104.wsgi.application'
-
+CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
@@ -120,8 +121,8 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
-STATIC_URL = '/static/'
+STATIC_URL = '/plots/'
 
-# STATICFILES_DIRS = [
-#     os.path.join(BASE_DIR, 'gui/build/static'),
-# ]
+STATICFILES_DIRS = [
+    BASE_DIR/'fyp_k00232104/static',
+]

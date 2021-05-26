@@ -6,4 +6,5 @@ urlpatterns = [
     path('register/', views.register, name='appUsers-register'),
     path('logout/', views.logout_user, name='appUsers-logout'),
     path('', views.home, name='appUsers-home'),
+    path('liquidate_assets', views.liquidate_assets, name='appUsers-liquidate_assets'),
 ]
